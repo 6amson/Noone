@@ -48,3 +48,5 @@ lerna-debug.log*
 # business docs
 business_constraints.md
 business_context.md
+business_packages.md
+business_workflow.md
