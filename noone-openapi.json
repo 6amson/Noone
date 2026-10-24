@@ -67,6 +67,73 @@
         ]
       }
     },
+    "/orders/{id}/invoice.pdf": {
+      "get": {
+        "operationId": "getInvoicePdf",
+        "summary": "Download an invoice PDF",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invoice PDF",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "orders"
+        ]
+      }
+    },
+    "/orders/{id}/receipt.pdf": {
+      "get": {
+        "operationId": "getReceiptPdf",
+        "summary": "Download a receipt PDF",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Receipt PDF",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Order has not been paid"
+          }
+        },
+        "tags": [
+          "orders"
+        ]
+      }
+    },
     "/orders/{id}/confirm": {
       "post": {
         "operationId": "confirmPayment",

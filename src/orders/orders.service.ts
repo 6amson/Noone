@@ -77,6 +77,15 @@ export class OrdersService {
       .map((order) => this.toInvoiceData(order));
   }
 
+  findById(orderId: string): StoredOrder {
+    const order = this.orders.get(orderId);
+    if (!order) {
+      throw new NotFoundException(`Order ${orderId} not found`);
+    }
+
+    return order;
+  }
+
   confirm(orderId: string, dto: ConfirmOrderDto): ReceiptData {
     const order = this.orders.get(orderId);
     if (!order) {
