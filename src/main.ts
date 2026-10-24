@@ -17,6 +17,7 @@ async function bootstrap() {
     .setTitle('Noone API')
     .setDescription('Mock API for Noone corporate gifting — order creation, invoice data, and receipts')
     .setVersion('1.0')
+    .addServer(process.env.API_BASE_URL ?? 'https://noone-seven.vercel.app')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   const swaggerCdn = 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.17.14';
