@@ -14,7 +14,7 @@ export class OrdersController {
 
   @Post()
   @ApiOperation({ operationId: 'createOrder', summary: 'Create a pending order and return invoice data' })
-  @ApiCreatedResponse({ type: InvoiceDataDto, description: 'Invoice data with payment link' })
+  @ApiCreatedResponse({ type: InvoiceDataDto, description: 'Invoice data with amounts due' })
   create(@Body() dto: CreateOrderDto): InvoiceData {
     return this.ordersService.create(dto);
   }

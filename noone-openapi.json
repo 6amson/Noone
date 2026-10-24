@@ -1,0 +1,301 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/orders": {
+      "post": {
+        "operationId": "createOrder",
+        "summary": "Create a pending order and return invoice data",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Invoice data with amounts due",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceDataDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "orders"
+        ]
+      }
+    },
+    "/orders/{id}/confirm": {
+      "post": {
+        "operationId": "confirmPayment",
+        "summary": "Confirm payment and return receipt data",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmOrderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Receipt data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReceiptDataDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "orders"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Noone API",
+    "description": "API for Noone corporate gifting — order creation, invoice data, and receipts",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [
+    {
+      "url": "https://noone-seven.vercel.app"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "OrderItemDto": {
+        "type": "object",
+        "properties": {
+          "packageName": {
+            "type": "string",
+            "example": "Chocolate Box"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 5
+          },
+          "unitPrice": {
+            "type": "number",
+            "example": 25000
+          }
+        },
+        "required": [
+          "packageName",
+          "quantity",
+          "unitPrice"
+        ]
+      },
+      "CreateOrderDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItemDto"
+            }
+          },
+          "occasion": {
+            "type": "string",
+            "example": "Team appreciation for Q4"
+          },
+          "recipientCount": {
+            "type": "number",
+            "example": 20
+          },
+          "deliveryArea": {
+            "type": "string",
+            "example": "Victoria Island office"
+          },
+          "customerNote": {
+            "type": "string",
+            "example": "Please include a note for the HR manager"
+          },
+          "requestedDeliveryDate": {
+            "type": "string",
+            "example": "2026-10-25",
+            "description": "Requested delivery date (YYYY-MM-DD). Cutoff rules may adjust this."
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "OrderItemResponseDto": {
+        "type": "object",
+        "properties": {
+          "packageName": {
+            "type": "string",
+            "example": "Chocolate Box"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 5
+          },
+          "unitPrice": {
+            "type": "number",
+            "example": 25000
+          },
+          "lineTotal": {
+            "type": "number",
+            "example": 125000
+          }
+        },
+        "required": [
+          "packageName",
+          "quantity",
+          "unitPrice",
+          "lineTotal"
+        ]
+      },
+      "InvoiceDataDto": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "example": "NOO-1001"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "paid"
+            ],
+            "example": "pending"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItemResponseDto"
+            }
+          },
+          "subtotal": {
+            "type": "number",
+            "example": 125000,
+            "description": "Sum of all line totals (NGN)"
+          },
+          "deliveryFee": {
+            "type": "number",
+            "example": 5000,
+            "description": "Delivery fee (NGN)"
+          },
+          "depositRequired": {
+            "type": "number",
+            "example": 62500,
+            "description": "Deposit due now for orders >= NGN 150,000; otherwise equals subtotal"
+          },
+          "totalDueNow": {
+            "type": "number",
+            "example": 67500,
+            "description": "Deposit plus delivery fee (NGN)"
+          },
+          "balanceRemaining": {
+            "type": "number",
+            "example": 62500,
+            "description": "Balance due before dispatch (NGN)"
+          },
+          "deliveryDate": {
+            "type": "string",
+            "example": "2026-10-25"
+          },
+          "notes": {
+            "type": "string",
+            "example": "50% deposit required; balance due before dispatch"
+          }
+        },
+        "required": [
+          "orderId",
+          "status",
+          "items",
+          "subtotal",
+          "deliveryFee",
+          "depositRequired",
+          "totalDueNow",
+          "balanceRemaining",
+          "deliveryDate",
+          "notes"
+        ]
+      },
+      "ConfirmOrderDto": {
+        "type": "object",
+        "properties": {
+          "paymentReference": {
+            "type": "string",
+            "example": "PSK_test_ref_123",
+            "description": "Payment reference from Paystack"
+          }
+        },
+        "required": [
+          "paymentReference"
+        ]
+      },
+      "ReceiptDataDto": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "example": "NOO-1001"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "paid"
+            ],
+            "example": "paid"
+          },
+          "amountReceived": {
+            "type": "number",
+            "example": 67500,
+            "description": "Amount received (NGN)"
+          },
+          "paymentReference": {
+            "type": "string",
+            "example": "PSK_test_ref_123"
+          },
+          "paidAt": {
+            "type": "string",
+            "example": "2026-10-24T09:00:00.000Z"
+          },
+          "balanceRemaining": {
+            "type": "number",
+            "example": 62500,
+            "description": "Balance due before dispatch (NGN)"
+          }
+        },
+        "required": [
+          "orderId",
+          "status",
+          "amountReceived",
+          "paymentReference",
+          "paidAt",
+          "balanceRemaining"
+        ]
+      }
+    }
+  }
+}

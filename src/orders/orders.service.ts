@@ -85,7 +85,7 @@ export class OrdersService {
     }
 
     const paidAt = new Date().toISOString();
-    const paymentReference = dto.paymentReference || `PSK_mock_${orderId}`;
+    const paymentReference = dto.paymentReference;
 
     order.status = 'paid';
     order.paidAt = paidAt;

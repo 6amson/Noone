@@ -15,7 +15,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Noone API')
-    .setDescription('Mock API for Noone corporate gifting — order creation, invoice data, and receipts')
+    .setDescription('API for Noone corporate gifting — order creation, invoice data, and receipts')
     .setVersion('1.0')
     .addServer(process.env.API_BASE_URL ?? 'https://noone-seven.vercel.app')
     .build();
