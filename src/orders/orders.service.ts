@@ -32,7 +32,6 @@ export class OrdersService {
 
     const deliveryDate = this.resolveDeliveryDate(dto.requestedDeliveryDate);
     const orderId = `NOO-${this.nextId++}`;
-    const paymentLink = `https://paystack.com/pay/noone-test-${orderId.toLowerCase()}`;
 
     const notesParts: string[] = [];
     if (subtotal >= DEPOSIT_THRESHOLD) {
@@ -51,7 +50,6 @@ export class OrdersService {
       depositRequired,
       totalDueNow,
       balanceRemaining,
-      paymentLink,
       deliveryDate,
       notes: notesParts.join('. ') || 'Full payment',
       occasion: dto.occasion,
@@ -72,7 +70,6 @@ export class OrdersService {
       depositRequired: stored.depositRequired,
       totalDueNow: stored.totalDueNow,
       balanceRemaining: stored.balanceRemaining,
-      paymentLink: stored.paymentLink,
       deliveryDate: stored.deliveryDate,
       notes: stored.notes,
     };

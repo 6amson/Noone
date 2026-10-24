@@ -43,9 +43,6 @@ export class InvoiceDataDto {
   @ApiProperty({ example: 62500, description: 'Balance due before dispatch (NGN)' })
   balanceRemaining: number;
 
-  @ApiProperty({ example: 'https://paystack.com/pay/noone-test-noo-1001' })
-  paymentLink: string;
-
   @ApiProperty({ example: '2026-10-25' })
   deliveryDate: string;
 

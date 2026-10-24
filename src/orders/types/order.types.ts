@@ -16,7 +16,6 @@ export interface InvoiceData {
   depositRequired: number;
   totalDueNow: number;
   balanceRemaining: number;
-  paymentLink: string;
   deliveryDate: string;
   notes: string;
 }
