@@ -3,6 +3,8 @@ import PDFDocument = require('pdfkit');
 import { OrdersService } from '../orders/orders.service';
 import { StoredOrder } from '../orders/types/order.types';
 
+require('pdfkit/standard-fonts/Helvetica');
+
 type PdfDocument = InstanceType<typeof PDFDocument>;
 
 @Injectable()
