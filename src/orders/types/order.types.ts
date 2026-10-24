@@ -30,6 +30,7 @@ export interface ReceiptData {
 }
 
 export interface StoredOrder extends InvoiceData {
+  customerEmail: string;
   occasion?: string;
   recipientCount?: number;
   deliveryArea?: string;

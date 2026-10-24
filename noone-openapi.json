@@ -2,6 +2,40 @@
   "openapi": "3.0.0",
   "paths": {
     "/orders": {
+      "get": {
+        "operationId": "listOrders",
+        "summary": "List orders for a customer email",
+        "parameters": [
+          {
+            "name": "email",
+            "required": true,
+            "in": "query",
+            "description": "Customer email to filter orders",
+            "schema": {
+              "example": "hr@acme.com",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orders for the email, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InvoiceDataDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "orders"
+        ]
+      },
       "post": {
         "operationId": "createOrder",
         "summary": "Create a pending order and return invoice data",
@@ -89,63 +123,6 @@
   ],
   "components": {
     "schemas": {
-      "OrderItemDto": {
-        "type": "object",
-        "properties": {
-          "packageName": {
-            "type": "string",
-            "example": "Chocolate Box"
-          },
-          "quantity": {
-            "type": "number",
-            "example": 5
-          },
-          "unitPrice": {
-            "type": "number",
-            "example": 25000
-          }
-        },
-        "required": [
-          "packageName",
-          "quantity",
-          "unitPrice"
-        ]
-      },
-      "CreateOrderDto": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/OrderItemDto"
-            }
-          },
-          "occasion": {
-            "type": "string",
-            "example": "Team appreciation for Q4"
-          },
-          "recipientCount": {
-            "type": "number",
-            "example": 20
-          },
-          "deliveryArea": {
-            "type": "string",
-            "example": "Victoria Island office"
-          },
-          "customerNote": {
-            "type": "string",
-            "example": "Please include a note for the HR manager"
-          },
-          "requestedDeliveryDate": {
-            "type": "string",
-            "example": "2026-10-25",
-            "description": "Requested delivery date (YYYY-MM-DD). Cutoff rules may adjust this."
-          }
-        },
-        "required": [
-          "items"
-        ]
-      },
       "OrderItemResponseDto": {
         "type": "object",
         "properties": {
@@ -239,6 +216,68 @@
           "balanceRemaining",
           "deliveryDate",
           "notes"
+        ]
+      },
+      "OrderItemDto": {
+        "type": "object",
+        "properties": {
+          "packageName": {
+            "type": "string",
+            "example": "Chocolate Box"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 5
+          },
+          "unitPrice": {
+            "type": "number",
+            "example": 25000
+          }
+        },
+        "required": [
+          "packageName",
+          "quantity",
+          "unitPrice"
+        ]
+      },
+      "CreateOrderDto": {
+        "type": "object",
+        "properties": {
+          "customerEmail": {
+            "type": "string",
+            "example": "hr@acme.com"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItemDto"
+            }
+          },
+          "occasion": {
+            "type": "string",
+            "example": "Team appreciation for Q4"
+          },
+          "recipientCount": {
+            "type": "number",
+            "example": 20
+          },
+          "deliveryArea": {
+            "type": "string",
+            "example": "Victoria Island office"
+          },
+          "customerNote": {
+            "type": "string",
+            "example": "Please include a note for the HR manager"
+          },
+          "requestedDeliveryDate": {
+            "type": "string",
+            "example": "2026-10-25",
+            "description": "Requested delivery date (YYYY-MM-DD). Cutoff rules may adjust this."
+          }
+        },
+        "required": [
+          "customerEmail",
+          "items"
         ]
       },
       "ConfirmOrderDto": {

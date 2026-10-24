@@ -17,6 +17,9 @@ export class OrdersService {
     if (!dto.items?.length) {
       throw new BadRequestException('At least one item is required');
     }
+    if (!dto.customerEmail) {
+      throw new BadRequestException('customerEmail is required');
+    }
 
     const items = dto.items.map((item) => ({
       packageName: item.packageName,
@@ -52,6 +55,7 @@ export class OrdersService {
       balanceRemaining,
       deliveryDate,
       notes: notesParts.join('. ') || 'Full payment',
+      customerEmail: this.normalizeEmail(dto.customerEmail),
       occasion: dto.occasion,
       recipientCount: dto.recipientCount,
       deliveryArea: dto.deliveryArea,
@@ -61,18 +65,16 @@ export class OrdersService {
 
     this.orders.set(orderId, stored);
 
-    return {
-      orderId: stored.orderId,
-      status: stored.status,
-      items: stored.items,
-      subtotal: stored.subtotal,
-      deliveryFee: stored.deliveryFee,
-      depositRequired: stored.depositRequired,
-      totalDueNow: stored.totalDueNow,
-      balanceRemaining: stored.balanceRemaining,
-      deliveryDate: stored.deliveryDate,
-      notes: stored.notes,
-    };
+    return this.toInvoiceData(stored);
+  }
+
+  findByEmail(email: string): InvoiceData[] {
+    const normalized = this.normalizeEmail(email);
+
+    return Array.from(this.orders.values())
+      .filter((order) => order.customerEmail === normalized)
+      .reverse()
+      .map((order) => this.toInvoiceData(order));
   }
 
   confirm(orderId: string, dto: ConfirmOrderDto): ReceiptData {
@@ -100,6 +102,25 @@ export class OrdersService {
       paidAt,
       balanceRemaining: order.balanceRemaining,
     };
+  }
+
+  private toInvoiceData(order: StoredOrder): InvoiceData {
+    return {
+      orderId: order.orderId,
+      status: order.status,
+      items: order.items,
+      subtotal: order.subtotal,
+      deliveryFee: order.deliveryFee,
+      depositRequired: order.depositRequired,
+      totalDueNow: order.totalDueNow,
+      balanceRemaining: order.balanceRemaining,
+      deliveryDate: order.deliveryDate,
+      notes: order.notes,
+    };
+  }
+
+  private normalizeEmail(email: string): string {
+    return email.trim().toLowerCase();
   }
 
   private resolveDeliveryDate(requested?: string): string {
