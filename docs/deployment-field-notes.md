@@ -51,9 +51,9 @@ require('pdfkit/standard-fonts/Helvetica');
 
 This forces the tracer to include the font module and its chunk. I re-ran the trace, confirmed both files were present, redeployed, and verified live invoice and receipt responses: `200 application/pdf`, body starting with `%PDF`.
 
-**What I would change**
+**Takeaway**
 
-Vercel/nft should follow package `imports` and dynamic `createRequire` calls inside dependencies. pdfkit should document serverless bundling. In Chord docs, add a note that PDF/binary tools need their runtime assets explicitly traced, with a working serverless PDF example.
+This was an application bundling issue, not a Vercel or Chord defect. The fix was to import the font asset explicitly in our PDF service so the deployment tracer could include it. No platform change was needed. 
 
 ## 3. OpenAPI import is file-based and lacks sync/type visibility
 
@@ -63,7 +63,7 @@ The initial spec was enough for Swagger locally, but it was not a stable connect
 
 **How I found the cause**
 
-I compared `/api-json` with the tool list in Chord and re-imported the spec after changes. `operationId` is a standard OpenAPI 3.x property, not a Chord-specific field; it is the stable operation name a connector maps to a tool. The missing operationIds were our gap. The file-only import and lack of auto-sync/type visibility were Chord's side of the problem.
+I compared `/api-json` with the tool list in Chord and re-imported the spec after changes. The missing operationIds were our gap. The file-only import and lack of auto-sync/type visibility were Chord's side.
 
 **Fix**
 
@@ -76,67 +76,7 @@ Added standard `operationId`s (`createOrder`, `listOrders`, `getInvoicePdf`, `ge
 - Validate and warn on missing or duplicate `operationId`s.
 - Document that `operationId` is the standard OpenAPI field used for stable tool names.
 
-## 4. `confirmPayment` returned 201 while the spec promised 200
-
-**What happened**
-
-A test expected `200` from `POST /orders/{id}/confirm`, but Nest returned `201 Created` because POST defaults to 201. The OpenAPI response said `200`.
-
-**How I found the cause**
-
-The failing Jest assertion showed:
-
-```text
-expected 200 "OK", got 201 "Created"
-```
-
-The controller had no `@HttpCode(200)`.
-
-**Fix**
-
-Added `@HttpCode(200)` and kept the test and spec aligned. The suite now passes with 6 tests.
-
-**What I would change in Chord**
-
-Chord should validate success codes against the OpenAPI response and warn when the runtime returns a different 2xx. Docs should call out that 2xx variants are not interchangeable for tool contracts.
-
-## 5. In-memory orders are not safe across Vercel instances
-
-**What happened**
-
-Orders are stored in a process-local `Map`. Vercel can cold-start a function or route consecutive requests to different instances, so a create/confirm/list sequence can lose state or return `404 Order not found`.
-
-**How I found the cause**
-
-The implementation used an in-memory `Map`; Vercel's serverless model does not guarantee instance affinity. I confirmed the risk while testing the create/confirm/PDF flow and kept the demo on a warm instance.
-
-**Workaround**
-
-Kept in-memory storage for the exercise and documented the limitation. For production, use a durable Redis-backed store such as Upstash Redis: `order:<id>` JSON, `email:<email>:orders` sorted set, `INCR orders:nextId`, TTLs, and idempotency keys for create and confirm.
-
-**What I would change in Chord**
-
-Chord docs should flag multi-step stateful tools on serverless and recommend external state plus idempotency. A sample Redis-backed connector would make this much faster to get right.
-
-## 6. The API initially returned a mock payment link, blurring ownership
-
-**What happened**
-
-The invoice included a fake `paymentLink`, which implied the API owned payment collection. The intended architecture is that the Chord agent owns Paystack and the API only records orders and confirmation.
-
-**How I found the cause**
-
-I traced the agent flow end to end: the agent initializes Paystack, sends the authorization URL, verifies the transaction, then confirms. A tool-owned link duplicated that responsibility and would have hidden the real integration.
-
-**Fix**
-
-Removed `paymentLink` from invoice data and docs. Added `confirmPayment` with a required Paystack `paymentReference`. Documented that the API never creates or returns payment links and never handles card details.
-
-**What I would change in Chord**
-
-Chord docs should include a reference pattern for "agent owns payment provider, tool owns order record," and warn against mock payment links in connector specs.
-
-## 7. The Paystack connector has no webhook or payment-event trigger
+## 4. The Paystack connector has no webhook or payment-event trigger
 
 **What happened**
 
@@ -162,7 +102,7 @@ This is the demo flow. It works, but it depends on the customer returning to cha
 
 Add webhook/event subscriptions to the Paystack connector, or a generic webhook trigger the agent can subscribe to. Include the order reference, amount, currency, status, and signature; verify signatures, retry failed deliveries, and make handlers idempotent. Document failed and abandoned payment events. If webhooks are not possible, expose a status/polling tool so the agent can check pending payments without waiting for the customer.
 
-## 8. Swagger UI did not render on Vercel
+## 5. Swagger UI did not render on Vercel
 
 **What happened**
 
@@ -187,3 +127,7 @@ Chord docs should include a serverless API docs recipe, or recommend hosting Swa
 - Deliver PDFs through email or an attachment-capable WhatsApp integration.
 - Add auth, rate limiting, structured logs, and alerts for 5xx errors and payment failures.
 - Expand tests around delivery cutoff, deposit boundaries, duplicate payments, and invalid dates.
+
+## Final note: in-memory storage
+
+Orders are stored in a process-local `Map`. This was a known trade-off for the exercise, not an issue that emerged during deployment. On Vercel, a cold start or a different instance loses orders. For production, move to a durable Redis-backed store such as Upstash Redis and add idempotency for create and confirm.
