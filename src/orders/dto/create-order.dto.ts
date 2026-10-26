@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { IsArray, IsEmail, IsNumber, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
 
 export class OrderItemDto {
   @ApiProperty({ example: 'Chocolate Box' })
@@ -23,6 +23,12 @@ export class CreateOrderDto {
   @Transform(({ value }) => (typeof value === 'string' ? value.trim().toLowerCase() : value))
   @IsEmail()
   customerEmail: string;
+
+  @ApiProperty({ example: '+234 800 000 0000', description: 'Phone number for the delivery contact' })
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @IsString()
+  @IsNotEmpty()
+  recipientPhone: string;
 
   @ApiProperty({ type: [OrderItemDto] })
   @IsArray()

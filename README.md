@@ -14,9 +14,9 @@ It is deployed at [https://noone-seven.vercel.app](https://noone-seven.vercel.ap
 
 ### Flow
 
-1. The agent collects the brief and customer email.
+1. The agent collects the brief, customer email, and delivery contact phone.
 2. The agent calls `POST /orders` with the selected catalogue items.
-3. The API returns invoice data: line items, subtotal, delivery fee, deposit, total due now, balance, delivery date, and notes.
+3. The API returns invoice data: line items, subtotal, delivery fee, deposit, total due now, balance, delivery date, recipient phone, and notes.
 4. The agent initializes a Paystack transaction for `totalDueNow * 100` kobo and sends the authorization URL.
 5. After payment, the agent verifies the transaction and calls `POST /orders/{id}/confirm` with the Paystack reference.
 6. The API returns receipt data. Invoice and receipt PDFs are available at the PDF endpoints, but the current Chord agent cannot stream or attach files, so Nora sends the details as text.
@@ -33,7 +33,7 @@ The API never creates or returns payment links and never handles card details. T
 | `POST` | `/orders/{id}/confirm` | Confirm a Paystack payment; returns receipt data |
 | `GET` | `/orders/{id}/receipt.pdf` | Download the receipt PDF (paid orders only) |
 
-`POST /orders` requires `customerEmail` and at least one item. `confirm` requires `paymentReference`. An unpaid receipt request returns `400`.
+`POST /orders` requires `customerEmail`, `recipientPhone`, and at least one item. `confirm` requires `paymentReference`. An unpaid receipt request returns `400`.
 
 ### OpenAPI and docs
 

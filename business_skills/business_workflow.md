@@ -12,6 +12,7 @@ You must have all of the following before calling the create-order tool:
 - Occasion or purpose
 - Approximate number of recipients
 - Delivery area
+- Recipient phone number (required for delivery coordination)
 - Any special note they want included
 - Customer email (required for the order and payment)
 - Requested delivery date (if they have one)
@@ -21,14 +22,14 @@ If anything is missing, ask for it. Do not call the tool yet.
 ## 3. Confirm before creating
 Summarise the order in one short message:
 - Packages + quantities
-- Occasion, recipients, delivery area
+- Occasion, recipients, delivery area, recipient phone
 - Any note
 
 Ask: “Shall I create the invoice for this?”  
 Only proceed after they confirm.
 
 ## 4. Create the order and invoice
-1. Call the create-order tool with the confirmed items, customerEmail, occasion, recipientCount, deliveryArea, customerNote, and requestedDeliveryDate.  
+1. Call the create-order tool with the confirmed items, customerEmail, recipientPhone, occasion, recipientCount, deliveryArea, customerNote, and requestedDeliveryDate.
    The tool returns invoice data (items, subtotal, deposit, delivery fee, total due now, delivery date, notes). It does **not** return a payment link.
 
 2. Call the initialize-transaction tool (Paystack) with the total due now and order reference to get a payment link.

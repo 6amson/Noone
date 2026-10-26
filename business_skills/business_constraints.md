@@ -14,6 +14,7 @@ Before calling the order tool you must have:
 - Occasion or purpose
 - Approximate number of recipients
 - Delivery area
+- Recipient phone number for the delivery contact
 - Any special note the client wants included
 
 If any of these are missing, ask for them first.

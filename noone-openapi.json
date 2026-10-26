@@ -267,6 +267,11 @@
             "type": "string",
             "example": "2026-10-25"
           },
+          "recipientPhone": {
+            "type": "string",
+            "example": "+234 800 000 0000",
+            "description": "Phone number for the delivery contact"
+          },
           "notes": {
             "type": "string",
             "example": "50% deposit required; balance due before dispatch"
@@ -282,6 +287,7 @@
           "totalDueNow",
           "balanceRemaining",
           "deliveryDate",
+          "recipientPhone",
           "notes"
         ]
       },
@@ -314,6 +320,11 @@
             "type": "string",
             "example": "hr@acme.com"
           },
+          "recipientPhone": {
+            "type": "string",
+            "example": "+234 800 000 0000",
+            "description": "Phone number for the delivery contact"
+          },
           "items": {
             "type": "array",
             "items": {
@@ -344,6 +355,7 @@
         },
         "required": [
           "customerEmail",
+          "recipientPhone",
           "items"
         ]
       },

@@ -34,6 +34,7 @@ describe('OrdersController (orders by email)', () => {
       .post('/orders')
       .send({
         customerEmail: 'HR@Acme.com',
+        recipientPhone: '+2348000000000',
         items: [{ packageName: 'Box A', quantity: 1, unitPrice: 10000 }],
       })
       .expect(201);
@@ -47,11 +48,35 @@ describe('OrdersController (orders by email)', () => {
     expect(response.body[0].orderId).toBe(created.body.orderId);
   });
 
+  it('rejects an order without a recipient phone', async () => {
+    await request(app.getHttpServer())
+      .post('/orders')
+      .send({
+        customerEmail: 'no-phone@acme.com',
+        items: [{ packageName: 'Box A', quantity: 1, unitPrice: 10000 }],
+      })
+      .expect(400);
+  });
+
+  it('returns the recipient phone on the order', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/orders')
+      .send({
+        customerEmail: 'phone@acme.com',
+        recipientPhone: '+2348000000000',
+        items: [{ packageName: 'Box A', quantity: 1, unitPrice: 10000 }],
+      })
+      .expect(201);
+
+    expect(response.body.recipientPhone).toBe('+2348000000000');
+  });
+
   it('returns an invoice PDF', async () => {
     const created = await request(app.getHttpServer())
       .post('/orders')
       .send({
         customerEmail: 'pdf@acme.com',
+        recipientPhone: '+2348000000000',
         items: [{ packageName: 'Box A', quantity: 2, unitPrice: 10000 }],
       })
       .expect(201);
@@ -75,6 +100,7 @@ describe('OrdersController (orders by email)', () => {
       .post('/orders')
       .send({
         customerEmail: 'receipt@acme.com',
+        recipientPhone: '+2348000000000',
         items: [{ packageName: 'Box A', quantity: 1, unitPrice: 10000 }],
       })
       .expect(201);
@@ -99,6 +125,7 @@ describe('OrdersController (orders by email)', () => {
       .post('/orders')
       .send({
         customerEmail: 'unpaid@acme.com',
+        recipientPhone: '+2348000000000',
         items: [{ packageName: 'Box A', quantity: 1, unitPrice: 10000 }],
       })
       .expect(201);

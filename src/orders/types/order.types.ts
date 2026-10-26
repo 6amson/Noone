@@ -17,6 +17,7 @@ export interface InvoiceData {
   totalDueNow: number;
   balanceRemaining: number;
   deliveryDate: string;
+  recipientPhone: string;
   notes: string;
 }
 

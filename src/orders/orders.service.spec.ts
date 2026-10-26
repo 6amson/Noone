@@ -14,6 +14,7 @@ describe('OrdersService email lookup', () => {
 
   const buildOrder = (customerEmail: string, packageName: string) => ({
     customerEmail,
+    recipientPhone: '+2348000000000',
     items: [{ packageName, quantity: 1, unitPrice: 10000 }],
   });
 

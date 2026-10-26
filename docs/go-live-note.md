@@ -2,7 +2,7 @@
 
 **Current status:** Nora is a working demo in test mode: no live payments, real WhatsApp number, or customer data yet.
 
-**What Nora does:** Nora is Noone's WhatsApp assistant for corporate gifting orders. She helps HR managers, office managers, and founders choose a package, collects the brief and customer email, creates an invoice, shares the Paystack payment link, confirms payment, and sends the receipt details. She applies the 50% deposit rule for orders of ₦150,000 or more and the 3pm delivery cutoff.
+**What Nora does:** Nora is Noone's WhatsApp assistant for corporate gifting orders. She helps HR managers, office managers, and founders choose a package, collects the brief, delivery contact phone, and customer email, creates an invoice, shares the Paystack payment link, confirms payment, and sends the receipt details. She applies the 50% deposit rule for orders of ₦150,000 or more and the 3pm delivery cutoff.
 
 **What she does not do:** Nora does not take card details, process payments, issue refunds, cancel paid orders, track riders, or check live inventory. Paystack handles payment. She also does not send PDF attachments yet; invoices and receipts are sent as text.
 

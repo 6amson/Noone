@@ -60,6 +60,7 @@ export class OrdersService {
       recipientCount: dto.recipientCount,
       deliveryArea: dto.deliveryArea,
       customerNote: dto.customerNote,
+      recipientPhone: dto.recipientPhone.trim(),
       createdAt: new Date().toISOString(),
     };
 
@@ -124,6 +125,7 @@ export class OrdersService {
       totalDueNow: order.totalDueNow,
       balanceRemaining: order.balanceRemaining,
       deliveryDate: order.deliveryDate,
+      recipientPhone: order.recipientPhone,
       notes: order.notes,
     };
   }

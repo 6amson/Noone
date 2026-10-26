@@ -46,6 +46,9 @@ export class InvoiceDataDto {
   @ApiProperty({ example: '2026-10-25' })
   deliveryDate: string;
 
+  @ApiProperty({ example: '+234 800 000 0000', description: 'Phone number for the delivery contact' })
+  recipientPhone: string;
+
   @ApiProperty({ example: '50% deposit required; balance due before dispatch' })
   notes: string;
 }
