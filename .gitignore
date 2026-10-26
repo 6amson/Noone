@@ -44,9 +44,3 @@ lerna-debug.log*
 # temp directory
 .temp
 .tmp
-
-# business docs
-business_constraints.md
-business_context.md
-business_packages.md
-business_workflow.md
