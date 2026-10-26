@@ -58,7 +58,7 @@ This submission uses Paystack test keys and made-up customer data only. No live 
 
 ## AI tools used
 
-I used OpenCode with DeepSeek V4.1 Flash Free as an AI coding assistant for implementation support: scaffolding and refactoring the NestJS endpoints, tracing the Vercel/pdfkit PDF failure, drafting the OpenAPI spec and documentation, and reviewing the business workflow. I ran the tests, local compiled checks, and live deployment checks myself. AI was not used to fabricate test results or customer data.
+I used OpenCode with DeepSeek V4.1 Flash as an AI coding assistant for implementation support: scaffolding and refactoring the NestJS endpoints, tracing the Vercel/pdfkit PDF failure, drafting the OpenAPI spec and documentation, and reviewing the business workflow. I ran the tests, local compiled checks, and live deployment checks myself. AI was not used to fabricate test results or customer data.
 
 ## Assessment notes
 
