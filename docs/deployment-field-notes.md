@@ -1,5 +1,7 @@
 # Deployment Field Notes
 
+All testing used Paystack test keys and made-up order data. No live payment keys, real customer data, or personal phone numbers were connected.
+
 ## 1. Chord could not stream or attach the generated PDFs
 
 **What happened**
@@ -53,23 +55,26 @@ This forces the tracer to include the font module and its chunk. I re-ran the tr
 
 Vercel/nft should follow package `imports` and dynamic `createRequire` calls inside dependencies. pdfkit should document serverless bundling. In Chord docs, add a note that PDF/binary tools need their runtime assets explicitly traced, with a working serverless PDF example.
 
-## 3. The first OpenAPI spec was not connector-ready
+## 3. OpenAPI import is file-based and lacks sync/type visibility
 
 **What happened**
 
-The initial spec was enough for Swagger locally, but it did not give the agent a reliable tool contract. It lacked an explicit server, stable `operationId`s, and useful response and required-field metadata.
+The initial spec was enough for Swagger locally, but it was not a stable connector contract: it had no `operationId`s, so generated tool names were ambiguous. Chord also imports a JSON file rather than a live URL; a live deployment did not refresh the connector, and the imported API's generated types were not visible enough to verify the tool contract.
 
 **How I found the cause**
 
-I compared `/api-json` with the operations the agent needed and imported the spec into the connector. The tool names and response shapes were ambiguous.
+I compared `/api-json` with the tool list in Chord and re-imported the spec after changes. `operationId` is a standard OpenAPI 3.x property, not a Chord-specific field; it is the stable operation name a connector maps to a tool. The missing operationIds were our gap. The file-only import and lack of auto-sync/type visibility were Chord's side of the problem.
 
 **Fix**
 
-Added `operationId`s (`createOrder`, `listOrders`, `getInvoicePdf`, `getReceiptPdf`, `confirmPayment`), the production server URL, response DTO schemas, binary PDF responses, and required fields (`customerEmail`, `paymentReference`). Regenerated `noone-openapi.json` and verified the live `/api-json`.
+Added standard `operationId`s (`createOrder`, `listOrders`, `getInvoicePdf`, `getReceiptPdf`, `confirmPayment`), the production server URL, response DTO schemas, binary PDF responses, and required fields (`customerEmail`, `paymentReference`). Regenerated `noone-openapi.json` and re-imported it manually after changes.
 
 **What I would change in Chord**
 
-Chord docs should list the exact OpenAPI fields it consumes and provide a validation checklist before import. The connector UI should show the generated tool list and flag missing `operationId`s or response schemas.
+- Support importing from the live OpenAPI URL, with a manual refresh or a deploy-triggered refresh.
+- Show the generated tool schemas, required fields, and response types after import so builders can verify what the agent will call.
+- Validate and warn on missing or duplicate `operationId`s.
+- Document that `operationId` is the standard OpenAPI field used for stable tool names.
 
 ## 4. `confirmPayment` returned 201 while the spec promised 200
 
@@ -107,7 +112,7 @@ The implementation used an in-memory `Map`; Vercel's serverless model does not g
 
 **Workaround**
 
-Kept in-memory storage for the exercise and documented the limitation. For production, use Upstash Redis via the Vercel Marketplace (Vercel KV is sunset): `order:<id>` JSON, `email:<email>:orders` sorted set, `INCR orders:nextId`, TTLs, and idempotency keys for create and confirm.
+Kept in-memory storage for the exercise and documented the limitation. For production, use a durable Redis-backed store such as Upstash Redis: `order:<id>` JSON, `email:<email>:orders` sorted set, `INCR orders:nextId`, TTLs, and idempotency keys for create and confirm.
 
 **What I would change in Chord**
 
@@ -131,7 +136,33 @@ Removed `paymentLink` from invoice data and docs. Added `confirmPayment` with a 
 
 Chord docs should include a reference pattern for "agent owns payment provider, tool owns order record," and warn against mock payment links in connector specs.
 
-## 7. Swagger UI did not render on Vercel
+## 7. The Paystack connector has no webhook or payment-event trigger
+
+**What happened**
+
+The Paystack connector can initialize and verify transactions, but it does not expose a webhook or event subscription that Chord can consume. When a customer pays, the agent is not notified. The working path is for the customer to return to WhatsApp and say they paid; the agent then verifies the transaction and calls our `confirmPayment` tool before sending the receipt.
+
+**How I found the cause**
+
+I mapped the payment flow against the connector's available tools. There is no event registration or webhook trigger in the connector, and Chord has no generic payment-event trigger in this setup. Confirmation is therefore request/response, initiated by the customer's message.
+
+**Workaround**
+
+Use inline confirmation:
+
+1. The customer says they have paid.
+2. The agent calls Paystack verify with the reference.
+3. The agent checks that the status is successful, the amount and currency match the invoice, and the reference belongs to the order.
+4. The agent calls `POST /orders/{id}/confirm` with the reference.
+5. The agent sends the receipt fields.
+
+This is the demo flow. It works, but it depends on the customer returning to chat and is not proactive.
+
+**What I would change in Chord**
+
+Add webhook/event subscriptions to the Paystack connector, or a generic webhook trigger the agent can subscribe to. Include the order reference, amount, currency, status, and signature; verify signatures, retry failed deliveries, and make handlers idempotent. Document failed and abandoned payment events. If webhooks are not possible, expose a status/polling tool so the agent can check pending payments without waiting for the customer.
+
+## 8. Swagger UI did not render on Vercel
 
 **What happened**
 
@@ -148,3 +179,11 @@ Configured Swagger to load its JavaScript and CSS from jsDelivr (`swagger-ui-dis
 **What I would change in Chord**
 
 Chord docs should include a serverless API docs recipe, or recommend hosting Swagger as a static page. Vercel's NestJS guide should mention the static-asset caveat.
+
+## What I would build with more time
+
+- Move the order store to Upstash Redis and make create and confirm idempotent.
+- Add a Paystack webhook receiver with signature verification and failed/abandoned payment handling.
+- Deliver PDFs through email or an attachment-capable WhatsApp integration.
+- Add auth, rate limiting, structured logs, and alerts for 5xx errors and payment failures.
+- Expand tests around delivery cutoff, deposit boundaries, duplicate payments, and invalid dates.

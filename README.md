@@ -8,7 +8,7 @@ Noone is a Lagos-based corporate gifting company that sells curated, multi-recip
 
 ## What this is
 
-A NestJS API that backs a WhatsApp gifting agent. The agent owns the conversation, catalogue lookup, Paystack payment, and customer messaging. This service owns the order record, invoice calculations, payment confirmation, and PDF documents.
+A NestJS API that backs a WhatsApp gifting agent. The customer-facing agent, Nora, is built and runs on Chord; this repo is the API/tool layer. The agent owns the conversation, catalogue lookup, Paystack payment, and customer messaging. This service owns the order record, invoice calculations, payment confirmation, and PDF documents.
 
 It is deployed at [https://noone-seven.vercel.app](https://noone-seven.vercel.app).
 
@@ -52,6 +52,14 @@ The agent instructions that define tone, business rules, catalogue usage, and th
 
 These skills are already uploaded to the Chord agent **Nora**. The API is the tool layer; this repo copy is the source of truth if the skills need updating or re-uploading.
 
+## Submission constraints
+
+This submission uses Paystack test keys and made-up customer data only. No live payment keys, real customer data, or personal phone numbers are connected.
+
+## AI tools used
+
+I used an AI coding assistant (OpenCode) for implementation support: scaffolding and refactoring the NestJS endpoints, tracing the Vercel/pdfkit PDF failure, drafting the OpenAPI spec and documentation, and reviewing the business workflow. I ran the tests, local compiled checks, and live deployment checks myself. AI was not used to fabricate test results or customer data.
+
 ## Assessment notes
 
 - [Deployment field notes](./docs/deployment-field-notes.md)
@@ -83,7 +91,7 @@ The repo is configured for Vercel with the NestJS preset (`vercel.json`). Push t
 
 ## Current limitations
 
-- Orders live in an in-memory `Map`. A Vercel cold start or a different instance loses them. For production, move the store to Upstash Redis (Vercel KV is sunset).
+- Orders live in an in-memory `Map`. A Vercel cold start or a different instance loses them. For production, move the store to a durable Redis-backed store such as Upstash Redis.
 - The API can generate invoice and receipt PDFs, but the current Chord agent cannot stream or attach file responses. Nora delivers the invoice and receipt as text; the PDF endpoints are ready for a channel or integration that supports attachments.
 - The service does not send emails or WhatsApp messages; the agent platform does.
 - The service does not verify Paystack transactions itself; the agent verifies before calling `confirm`.
