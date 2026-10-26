@@ -128,10 +128,11 @@ Chord docs should include a serverless API docs recipe, or recommend hosting Swa
 - Add auth, rate limiting, structured logs, and alerts for 5xx errors and payment failures.
 - Expand tests around delivery cutoff, deposit boundaries, duplicate payments, and invalid dates.
 
-## Final note: in-memory storage
+## Final note: 
+## In-memory storage
 
 Orders are stored in a process-local `Map`. This was a known trade-off for the exercise, not an issue that emerged during deployment. On Vercel, a cold start or a different instance loses orders. For production, move to a durable Redis-backed store such as Upstash Redis and add idempotency for create and confirm.
 
-## Final note: email delivery
+## Email delivery
 
 The only reason I did not explore the Resend email connector for sending invoices and receipts was that it required a verified sending domain and live parameters, which the exercise did not allow. The Vercel backend URL would not have changed that: Resend needs a verified email domain and live API credentials, not a publicly reachable API URL.
